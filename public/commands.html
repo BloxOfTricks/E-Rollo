@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Public Commands</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Public Commands List</h1>
+<ul id="commandList"></ul>
+
+<script>
+async function loadCommands() {
+    const res = await fetch("/commands");
+    const list = await res.json();
+    const ul = document.getElementById("commandList");
+    ul.innerHTML = "";
+    list.forEach(cmd => {
+        const li = document.createElement("li");
+        li.textContent = `Name: ${cmd.name} | Description: ${cmd.description} | Command: ${cmd.command}`;
+        ul.appendChild(li);
+    });
+}
+loadCommands();
+</script>
+</body>
+</html>
