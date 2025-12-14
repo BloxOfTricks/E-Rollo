@@ -3,6 +3,9 @@ import fs from 'fs';
 import fetch from 'node-fetch';
 import session from 'express-session';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 dotenv.config();
 
 const app = express();
@@ -16,8 +19,17 @@ app.use(session({
 const OWNER_ID = process.env.OWNER_ID;
 const DB_FILE = "./commands.json";
 
+// Needed for __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Serve static frontend
 app.use(express.static("public"));
+
+// Explicit route for homepage
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // OAuth2 login route
 app.get("/login", (req, res) => {
@@ -79,4 +91,5 @@ app.get("/commands", (req, res) => {
     res.json(commands);
 });
 
+// Start server at the very end
 app.listen(3000, () => console.log("Server running on port 3000"));
