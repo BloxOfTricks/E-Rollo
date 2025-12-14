@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Commands</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Command Generator (Owner Only)</h1>
+
+<p>Write command using simple Python-like syntax:</p>
+<textarea id="commandCode" placeholder='command = "hello"
+description = "Says hello"
+if commandUsed:
+    Embed(
+        print("Hello world")
+    )'></textarea>
+<br>
+<button onclick="saveCommand()">Save Command</button>
+
+<h2>Public Commands</h2>
+<ul id="commandList"></ul>
+
+<script>
+async function saveCommand() {
+    const code = document.getElementById("commandCode").value;
+    const nameMatch = code.match(/command\s*=\s*["'](.+)["']/);
+    const descMatch = code.match(/description\s*=\s*["'](.+)["']/);
+    const name = nameMatch ? nameMatch[1] : "Unnamed";
+    const description = descMatch ? descMatch[1] : "No description";
+
+    const res = await fetch("/saveCommand", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ name, description, code })
+    });
+    if (res.ok) { alert("Command saved!"); loadCommands(); }
+}
+
+async function loadCommands() {
+    const res = await fetch("/commands");
+    const list = await res.json();
+    const ul = document.getElementById("commandList");
+    ul.innerHTML = "";
+    list.forEach(cmd => {
+        const li = document.createElement("li");
+        li.textContent = `Name: ${cmd.name} | Description: ${cmd.description} | Command: ${cmd.command}`;
+        ul.appendChild(li);
+    });
+}
+
+// Load public commands on page load
+loadCommands();
+</script>
+</body>
+</html>
